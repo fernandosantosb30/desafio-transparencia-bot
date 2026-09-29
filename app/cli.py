@@ -6,6 +6,7 @@ import json
 import sys
 
 from pydantic import ValidationError
+from app.core.logging import logger
 
 from app.services.browser_pool import BrowserPool
 from app.services.scraper import TIMEOUT_MESSAGE, TransparenciaScraper
@@ -22,6 +23,7 @@ async def main() -> None:
     try:
         result = await scraper.consultar(args.termo, args.filtro_social)
     except (DomainError, ValidationError) as exc:
+        logger.warning("Consulta interrompida: %s", type(exc).__name__)
         message = str(exc) if isinstance(exc, NoResultsError) else TIMEOUT_MESSAGE
         result = scraper._build_error_response(args.termo, message)
     print(json.dumps(result.model_dump(mode="json"), indent=2, ensure_ascii=False))

@@ -1,4 +1,4 @@
-from pydantic import Field
+from pydantic import Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     NAVIGATION_TIMEOUT_MS: int = Field(default=30000, gt=0)
     PORTAL_URL: str = "https://portaldatransparencia.gov.br"
     LOG_LEVEL: str = "INFO"
+    API_KEY: SecretStr | None = None
 
     model_config = SettingsConfigDict(
         env_file=".env",

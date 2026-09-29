@@ -33,7 +33,7 @@ jobs:
       - name: Verify container HTTP and OpenAPI
         run: |
           docker run -d --name transparencia-ci -e PORT=8080 -p 127.0.0.1:8080:8080 transparencia-bot:ci
-          curl --fail --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:8080/health
+          curl --fail --retry 15 --retry-all-errors --retry-delay 2 http://127.0.0.1:8080/health
           curl --fail http://127.0.0.1:8080/openapi.json
       - name: Container logs
         if: always()

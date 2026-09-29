@@ -103,6 +103,10 @@ class TransparenciaScraper:
 
     async def _goto(self, page: Page, url: str) -> None:
         response = await page.goto(url, wait_until="domcontentloaded")
+        # The portal can first return an empty document and then render its page.
+        await page.wait_for_function(
+            "document.querySelector('main, #main-content, form, a, input, #captcha-container') || /human verification|verificação humana/i.test(document.title)"
+        )
         await self._check_block(page)
         if response and response.status >= 400:
             raise SearchTimeoutError(TIMEOUT_MESSAGE)
