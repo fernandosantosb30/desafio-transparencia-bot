@@ -47,7 +47,8 @@ async def consulta(request: Request, payload: ConsultaRequest) -> ConsultaRespon
             termo=payload.termo,
             mensagem=str(exc),
         )
-    except (PortalBlockedError, SearchTimeoutError):
+    except (PortalBlockedError, SearchTimeoutError) as exc:
+        logger.warning("Consulta interrompida: %s", type(exc).__name__)
         return ConsultaResponse(
             id_consulta=str(uuid.uuid4()),
             status="erro",

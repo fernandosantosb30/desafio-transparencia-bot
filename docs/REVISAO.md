@@ -1,6 +1,6 @@
 # Revisão de código e aderência
 
-Referência: [desafio-01](https://github.com/mostqi/desafios-fullstack-python/tree/main/desafio-01), consultado em 29/09/2026. Esta revisão alterou os arquivos locais; a pasta `.git` disponível estava vazia e não foi possível obter histórico ou gerar um diff Git.
+Referência: [desafio-01](https://github.com/mostqi/desafios-fullstack-python/tree/main/desafio-01), consultado em 29/09/2026. A pasta `.git` inicial estava vazia, sem histórico anterior disponível. Depois da revisão, o projeto foi versionado no repositório privado `fernandosantosb30/desafio-transparencia-bot`.
 
 ## Achados por gravidade
 
@@ -24,19 +24,21 @@ Referência: [desafio-01](https://github.com/mostqi/desafios-fullstack-python/tr
 
 ## Evidências e limites
 
-- Resultado final: **31 testes passaram** com Python 3.14 e Playwright 1.63.0. `pip check` não encontrou dependências incompatíveis e `compileall` validou a sintaxe de `app` e `tests`.
+- Resultado local: **34 testes passaram** com Python 3.14 e Playwright 1.63.0, incluindo autenticação opcional. `pip check` não encontrou dependências incompatíveis e `compileall` validou a sintaxe de `app` e `tests` na revisão inicial.
 - Os dez testes originais passaram antes das alterações. Isso evidenciou uma lacuna de cobertura, não uma garantia de funcionamento do robô.
 - A suíte ampliada usa Chromium headless e um servidor HTTP sintético temporário. Nenhuma consulta real de pessoa é necessária nesses testes.
 - Foi verificada a resposta pública Human Verification / AWS WAF com uma requisição à rota de busca. O corpo retornado não continha o formulário esperado.
 - Os formatos do workflow foram conferidos com o código oficial dos nós [Drive v1](https://github.com/n8n-io/n8n/blob/master/packages/nodes-base/nodes/Google/Drive/v1/GoogleDriveV1.node.ts) e [Sheets append](https://github.com/n8n-io/n8n/blob/master/packages/nodes-base/nodes/Google/Sheet/v2/actions/sheet/append.operation.ts). Conferência estática não equivale a execução no n8n.
-- Docker não está disponível nesta máquina; a imagem não foi construída na revisão.
+- Docker não está disponível nesta máquina. O [run 36643354292](https://github.com/fernandosantosb30/desafio-transparencia-bot/actions/runs/36643354292) passou testes, build Docker, testes na imagem e verificação HTTP no GitHub Actions.
+- A navegação interativa no portal real permitiu conferir busca, panorama, Auxílio Emergencial e Bolsa Família. Foram corrigidos a rota de busca, o submit restrito ao formulário, links de pessoas sob `/busca/pessoa-fisica/`, acordeões e paginação por tabela. Isso não equivale a uma consulta completa do scraper em produção.
+- A espera por renderização agora diferencia uma página transitória vazia de bloqueio detectado. A tentativa headless terminou com `PortalBlockedError`, sem sucesso real.
 - O ambiente de testes emite aviso de depreciação de Starlette sobre o transporte HTTPX do TestClient. Os testes passam; a migração do transporte é uma manutenção futura, não um erro de consulta demonstrado.
 
 ## Pendências que impedem afirmar conformidade completa
 
-1. **P1: homologação do portal real.** Os seletores são hipóteses conservadoras verificadas no portal sintético, não seletores certificados do HTML de produção. Acesso legítimo sem o bloqueio é necessário para completar essa etapa. Verificar especialmente rótulos, links de resultados, campos do panorama, carregamento AJAX, detalhes e paginação.
+1. **P1: homologação headless do portal real.** Parte dos seletores foi conferida no navegador interativo, mas falta executar o scraper completo sem bloqueio, comparar os dados e a evidência com a tela e verificar todos os programas, inclusive Auxílio Brasil. Não substituir essa evidência por testes sintéticos.
 2. **P1 para o bônus: publicação online e Google.** Importar o workflow na versão de n8n escolhida, configurar OAuth, conferir arquivo e linha reais e fornecer URL acessível da API.
-3. **P2: operação pública.** Não há autenticação, limite global entre processos, rate limiting nem persistência de tarefas. A máscara do campo CPF não remove dados pessoais do screenshot, termo, NIS ou detalhes.
+3. **P2: operação pública.** Há autenticação opcional por X-API-Key, que deve ser configurada antes da exposição pública. Não há limite global entre processos, rate limiting nem persistência de tarefas. A máscara do campo CPF não remove dados pessoais do screenshot, termo, NIS ou detalhes.
 4. **P2: coleta de layouts não previstos.** Benefícios em abas/modais e tabelas sem os controles suportados ainda precisam de adaptação. Não existe garantia de extrair todos os campos possíveis.
 
 ## Roteiro de aceitação final

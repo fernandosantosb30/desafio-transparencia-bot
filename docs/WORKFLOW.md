@@ -12,6 +12,7 @@ O webhook responde ao recebimento; essa resposta não confirma que o Drive ou o 
 
 1. Importe o JSON. Mantenha o workflow inativo enquanto configura os serviços.
 2. No HTTP Request, informe a URL da API. O padrão `host.docker.internal` atende a alguns ambientes Docker; em Linux pode exigir `extra_hosts: ["host.docker.internal:host-gateway"]` no serviço **n8n**. Entre serviços na mesma rede Compose, use o nome do serviço. Para o bônus online, use a URL HTTPS publicada.
+   Se API_KEY estiver definida, selecione Generic Credential Type / Header Auth e configure uma credencial com nome `X-API-Key` e o valor privado da chave. Não escreva o segredo diretamente no JSON exportado.
 3. Configure as credenciais OAuth2 dos nós Google pela interface do n8n e autorize a conta que tem acesso aos destinos. Configure a URI de redirecionamento indicada pela sua instância no cliente OAuth Google. Não exporte tokens para o Git.
 4. No Drive, substitua `PASTA_GOOGLE_DRIVE_ID` no campo Parents. O nó usa a versão 1 com autenticação OAuth2 explícita e operação Upload. Caso o editor migre o nó, confira novamente seus parâmetros.
 5. Crie uma planilha com aba `Consultas` e cabeçalhos: `identificador_unico`, `nome`, `cpf`, `data_hora`, `link_json`, `status`. Configure o ID da planilha no nó Sheets e recarregue o mapeamento das colunas.

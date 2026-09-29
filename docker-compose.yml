@@ -13,4 +13,5 @@ services:
       REQUEST_TIMEOUT_SECONDS: 120
       NAVIGATION_TIMEOUT_MS: 30000
       LOG_LEVEL: INFO
+      API_KEY: ${API_KEY:-}
     restart: unless-stopped

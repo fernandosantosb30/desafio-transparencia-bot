@@ -19,7 +19,10 @@ A solução inclui:
 - retorno padronizado de dados e evidência Base64;
 - modelo de workflow para salvar JSON no Drive e registrar no Google Sheets.
 
-Estado de validação: os testes locais incluem Chromium em um portal sintético. O portal público retornou verificação humana durante a revisão. A integração Google e a publicação online ainda precisam de homologação; não estão sendo apresentadas como concluídas.
+Estado de validação: os testes locais incluem Chromium em um portal sintético. O GitHub Actions aprovou testes, build Docker, testes no container e verificação HTTP. A navegação interativa permitiu revisar parte dos seletores reais, mas o scraper headless ainda recebeu verificação humana. A integração Google e a publicação online ainda precisam de homologação; não estão sendo apresentadas como concluídas.
+
+Código (privado; conceder acesso antes do envio): https://github.com/fernandosantosb30/desafio-transparencia-bot
+Validação CI: https://github.com/fernandosantosb30/desafio-transparencia-bot/actions/runs/36643354292
 
 Antes do envio, preencher: [LINK DO CÓDIGO], [URL DA API, SE PUBLICADA] e [EVIDÊNCIAS DOS TESTES REAIS]. Atualizar o estado acima somente depois da verificação correspondente.
 

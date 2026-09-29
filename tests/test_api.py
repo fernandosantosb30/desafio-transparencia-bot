@@ -9,6 +9,24 @@ from app.api import routes
 from app.main import app
 from app.schemas.consulta import ConsultaResponse
 from app.utils.errors import NoResultsError, SearchTimeoutError
+from pydantic import SecretStr
+
+
+@pytest.fixture(autouse=True)
+def local_api_without_key(monkeypatch):
+    monkeypatch.setattr(routes.settings, "API_KEY", None)
+
+
+def test_api_key_is_required_when_configured(monkeypatch):
+    monkeypatch.setattr(routes.settings, "API_KEY", SecretStr("test-key"))
+    assert client.post("/consulta", json={"termo": "Teste"}).status_code == 401
+    assert client.post("/consulta", json={"termo": "Teste"}, headers={"X-API-Key": "wrong"}).status_code == 401
+
+    async def fake_consultar(termo, filtro_beneficiario_social=False):
+        return ConsultaResponse(id_consulta="auth-test", status="erro", termo=termo)
+
+    monkeypatch.setattr(routes._scraper, "consultar", fake_consultar)
+    assert client.post("/consulta", json={"termo": "Teste"}, headers={"X-API-Key": "test-key"}).status_code == 200
 
 client = TestClient(app)
 

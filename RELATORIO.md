@@ -19,7 +19,7 @@ Este relatório descreve o código e os problemas observados na revisão. Não �
 | BeautifulSoup | Parsing separado do navegador, simples de testar com HTML | Não executa JavaScript; depende do HTML entregue pelo Playwright |
 | asyncio | Sobrepõe esperas e controla o número de consultas | Estado compartilhado e cancelamento exigem cuidado |
 | pytest/HTTPX | Regressões e contrato HTTP verificáveis | Mocks isolados não demonstram navegação real |
-| Docker | Instalação documentada do navegador e dependências | Build e execução ainda precisam ser testados onde Docker estiver disponível |
+| Docker | Instalação documentada do navegador e dependências | Build, testes na imagem e verificação HTTP aprovados no GitHub Actions |
 | n8n | Workflow visual exportável, HTTP e integração Google | Credenciais, hospedagem e versões de nós precisam ser mantidas |
 
 Manter Playwright segue o enunciado. Não é necessário afirmar que Selenium seria incapaz de isolamento ou headless. A decisão se apoia na adequação da API assíncrona e no requisito concreto desta solução.

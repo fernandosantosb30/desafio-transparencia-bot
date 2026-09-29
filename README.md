@@ -6,7 +6,9 @@ Projeto Python para o [desafio-01 da mostQI](https://github.com/mostqi/desafios-
 
 O fluxo está implementado e coberto por testes de unidade, API e navegador contra um **portal local sintético**. Isso não comprova compatibilidade com o HTML atual do portal público.
 
-Na revisão de 29/09/2026, o portal respondeu com **Human Verification / AWS WAF**. Não foi possível validar os seletores de produção nem concluir uma consulta real. Não há tentativa de contornar CAPTCHA. O robô retorna erro, sem apresentar dados inventados.
+Na revisão de 29/09/2026, a navegação interativa permitiu conferir a busca, o panorama e detalhes de Bolsa Família e Auxílio Emergencial. Rotas, formulários, acordeões e paginação foram ajustados ao HTML observado. Entretanto, o Chromium headless ainda recebeu **Human Verification / AWS WAF**, sem concluir uma consulta real. Não há tentativa de contornar CAPTCHA. O robô retorna erro, sem apresentar dados inventados.
+
+O [GitHub Actions](https://github.com/fernandosantosb30/desafio-transparencia-bot/actions/runs/36643354292) validou testes, build Docker, testes dentro da imagem e resposta HTTP da API. Esse resultado não comprova acesso ao portal externo.
 
 O workflow foi corrigido por inspeção do formato dos nós. Importação no n8n, OAuth Google, upload e registro reais ainda precisam de validação. A API não foi publicada online nesta revisão. Portanto, a Parte 2 ainda não deve ser apresentada como concluída.
 
@@ -14,6 +16,7 @@ O workflow foi corrigido por inspeção do formato dos nós. Importação no n8n
 - [Revisão, correções e pendências](docs/REVISAO.md)
 - [Configuração do bônus](docs/WORKFLOW.md)
 - [Roteiro da apresentação](docs/roteiro_apresentacao.md)
+- [Checklist de entrega e homologação](docs/ENTREGA.md)
 
 ## Requisitos e implementação
 
@@ -75,7 +78,7 @@ docs/
 
 ## Instalação
 
-Python 3.11 ou superior é necessário para `asyncio.timeout`. A revisão executou os testes com Python 3.14; a imagem Docker usa Python 3.12 e ainda precisa de build neste ambiente.
+Python 3.11 ou superior é necessário para `asyncio.timeout`. A revisão executou os testes com Python 3.14; a imagem Docker usa Python 3.12 e foi construída e testada no GitHub Actions.
 
 ```bash
 python3 -m venv .venv
@@ -99,6 +102,9 @@ A instalação das dependências do sistema pode solicitar privilégios administ
 | NAVIGATION_TIMEOUT_MS | 30000 | Limite de ações/navegação |
 | PORTAL_URL | https://portaldatransparencia.gov.br | Origem do portal |
 | LOG_LEVEL | INFO | Nível de log |
+| API_KEY | vazio | Quando definida, exige o cabeçalho X-API-Key em POST /consulta |
+
+Defina uma chave privada antes de expor a API. No Swagger, use Authorize; no n8n, use uma credencial Header Auth com nome `X-API-Key`. Não coloque a chave no workflow exportado. `/health` e `/docs` permanecem públicos. Sem API_KEY, a execução local não exige autenticação.
 
 O prazo total cancela o trabalho; o fechamento do navegador pode acrescentar algum tempo de limpeza. Não há retry automático nem fila persistente.
 
