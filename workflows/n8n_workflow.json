@@ -1,0 +1,225 @@
+{
+  "name": "Portal Transparencia -> Drive + Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "consulta-transparencia",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook-id",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        200
+      ],
+      "webhookId": "consulta-transparencia"
+    },
+    {
+      "parameters": {
+        "url": "http://host.docker.internal:8000/consulta",
+        "options": {
+          "timeout": 150000
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ termo: $json.body.termo, filtro_beneficiario_social: $json.body.filtro_beneficiario_social ?? false }) }}",
+        "method": "POST"
+      },
+      "id": "http-request-id",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        260,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const result = $json;\nconst stamp = result.data_hora.replace(/[:.]/g, '-');\nconst fileName = `${result.id_consulta}_${stamp}.json`;\nreturn { json: result, binary: { data: { data: Buffer.from(JSON.stringify(result, null, 2), 'utf8').toString('base64'), mimeType: 'application/json', fileName } } };"
+      },
+      "id": "json-file-id",
+      "name": "Preparar JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        460,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "operation": "upload",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "name": "={{ $binary.data.fileName }}",
+        "parents": [
+          "PASTA_GOOGLE_DRIVE_ID"
+        ],
+        "options": {}
+      },
+      "id": "google-drive-id",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 1,
+      "position": [
+        680,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "PLANILHA_GOOGLE_SHEETS_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Consultas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "identificador_unico": "={{ $('HTTP Request').item.json.id_consulta }}",
+            "nome": "={{ $('HTTP Request').item.json.dados_pessoa?.nome ?? '' }}",
+            "cpf": "={{ $('HTTP Request').item.json.dados_pessoa?.cpf ?? '' }}",
+            "data_hora": "={{ $('HTTP Request').item.json.data_hora }}",
+            "link_json": "={{ 'https://drive.google.com/file/d/' + $json.id + '/view' }}",
+            "status": "={{ $('HTTP Request').item.json.status }}"
+          },
+          "schema": [
+            {
+              "id": "identificador_unico",
+              "displayName": "identificador_unico",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "cpf",
+              "displayName": "cpf",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data_hora",
+              "displayName": "data_hora",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "link_json",
+              "displayName": "link_json",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW",
+          "useAppend": true
+        },
+        "operation": "append"
+      },
+      "id": "google-sheets-id",
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.1,
+      "position": [
+        900,
+        200
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Preparar JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar JSON": {
+      "main": [
+        [
+          {
+            "node": "Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "active": false
+}

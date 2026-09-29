@@ -1,0 +1,12 @@
+__pycache__/
+.pytest_cache/
+.env
+.venv/
+coverage.xml
+*.pyc
+*.pyo
+*.log
+.mypy_cache/
+artifacts/
+consulta-*.json
+resultado.json

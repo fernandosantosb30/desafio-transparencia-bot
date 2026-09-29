@@ -1,0 +1,16 @@
+services:
+  api:
+    build: .
+    container_name: transparencia-api
+    ports:
+      - "8000:8000"
+    environment:
+      APP_NAME: transparencia-bot
+      PORT: 8000
+      PORTAL_URL: https://portaldatransparencia.gov.br
+      MAX_CONCURRENT_REQUESTS: 5
+      PLAYWRIGHT_HEADLESS: "true"
+      REQUEST_TIMEOUT_SECONDS: 120
+      NAVIGATION_TIMEOUT_MS: 30000
+      LOG_LEVEL: INFO
+    restart: unless-stopped

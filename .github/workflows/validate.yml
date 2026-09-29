@@ -1,0 +1,43 @@
+name: Validate Python and Docker
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          python -m playwright install --with-deps chromium
+      - name: Test local synthetic portal
+        run: python -m pytest -q
+      - name: Validate Compose and build image
+        run: |
+          docker compose config --quiet
+          docker build -t transparencia-bot:ci .
+      - name: Test packaged application
+        run: docker run --rm --ipc=host transparencia-bot:ci python -m pytest -q
+      - name: Verify container HTTP and OpenAPI
+        run: |
+          docker run -d --name transparencia-ci -e PORT=8080 -p 127.0.0.1:8080:8080 transparencia-bot:ci
+          curl --fail --retry 15 --retry-connrefused --retry-delay 2 http://127.0.0.1:8080/health
+          curl --fail http://127.0.0.1:8080/openapi.json
+      - name: Container logs
+        if: always()
+        run: docker logs transparencia-ci || true
+      - name: Cleanup
+        if: always()
+        run: docker rm -f transparencia-ci || true
